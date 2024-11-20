@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torchsummary import summary
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
@@ -103,14 +104,16 @@ def show_images(loader):
     plt.show()
 
 # Training loop
-epochs = 10
+epochs = 2
 for epoch in range(epochs):
     print(f'\nEpoch: {epoch+1}')
     train(model, train_loader, criterion, optimizer, device)
     test(model, test_loader, criterion, device)
 
 # Show some images
-show_images(train_loader)
+# show_images(train_loader)
+summary(model, input_size=(1, 28, 28)) #print the model summary, parameters
+
 
 # Save model
 torch.save(model.state_dict(), 'mnist_mlp.pth')
