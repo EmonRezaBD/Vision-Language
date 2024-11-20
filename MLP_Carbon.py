@@ -5,6 +5,8 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+import time
+
 
 # Check GPU availability
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -31,16 +33,48 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         self.flatten = nn.Flatten()
         self.layers = nn.Sequential(
-            nn.Linear(28 * 28, 256),
+            nn.Linear(28 * 28, 256), #28*28 = 784 neurons in input layer
             nn.ReLU(),
-            nn.Linear(256, 128),
+            nn.Linear(256, 128), #first hidden layer has 256 neurons
             nn.ReLU(),
-            nn.Linear(128, 10)
+            nn.Linear(128, 10) #second layer has 128 neurons #output layer has 10 neurons
         )
 
     def forward(self, x):
+        # start_time_input_layer = time.time()
+        # x = self.flatten(x)
+        # input_time = time.time() - start_time_input_layer
+        # # Optionally, print the time taken by the input layer
+        # print(f"Time taken by input layer (flattening): {input_time:.6f} seconds")
+        # return self.layers(x)
+        # Measure time for the first hidden layer and activation
+        # Measure time for the input layer (flattening)
+        start_time = time.time()
         x = self.flatten(x)
-        return self.layers(x)
+        input_time = time.time() - start_time
+        print(f"Time taken by input layer (flattening): {input_time:.6f} seconds")
+        
+        # Measure time for the first hidden layer and activation
+        start_time = time.time()
+        x = self.layer1(x)
+        x = self.relu1(x)
+        hidden_layer1_time = time.time() - start_time
+        print(f"Time taken by first hidden layer (Linear + ReLU): {hidden_layer1_time:.6f} seconds")
+        
+        # Measure time for the second hidden layer and activation
+        start_time = time.time()
+        x = self.layer2(x)
+        x = self.relu2(x)
+        hidden_layer2_time = time.time() - start_time
+        print(f"Time taken by second hidden layer (Linear + ReLU): {hidden_layer2_time:.6f} seconds")
+        
+        # Measure time for the output layer
+        start_time = time.time()
+        x = self.layer3(x)
+        output_layer_time = time.time() - start_time
+        print(f"Time taken by output layer (Linear): {output_layer_time:.6f} seconds")
+        
+        return x
 
 # Initialize model and move to GPU if available
 model = MLP().to(device)
@@ -112,7 +146,7 @@ for epoch in range(epochs):
 
 # Show some images
 # show_images(train_loader)
-summary(model, input_size=(1, 28, 28)) #print the model summary, parameters
+summary(model, input_size=(1, 28, 28))
 
 
 # Save model
